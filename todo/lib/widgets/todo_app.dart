@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:todo/services/todo_local_service.dart';
 import '../models/todo.dart';
 import 'todo_input.dart';
 import 'todo_list.dart';
@@ -12,30 +13,52 @@ class TodoApp extends StatefulWidget {
 
 class _TodoAppState extends State<TodoApp> {
   final TextEditingController _controller = TextEditingController();
-  final List<Todo> _todos = [];
+  List<Todo> _todos = [];
 
-  void _addTodo() {
-    final title = _controller.text.trim();
-    if (title.isEmpty) return;
-    setState(() => _todos.add(Todo(title: title)));
-    _controller.clear();
-    FocusScope.of(context).unfocus();
+  @override
+  void initState() {
+    super.initState();
+    _loadTodos();
   }
 
-  void _toggleDone(String id, bool? value) {
+  Future<void> _loadTodos() async {
+    final todos = await TodoLocalService.instance.fetchTodos();
+    setState(() {
+      _todos = todos;
+    });
+  }
+
+  Future<void> _addTodo() async {
+    final title = _controller.text.trim();
+    if (title.isEmpty) return;
+
+    final newTodo = Todo(title: title);
+    await TodoLocalService.instance.addTodo(newTodo);
+
+    setState(() => _todos.add(Todo(title: title)));
+    _controller.clear();
+    // FocusScope.of(context).unfocus();
+  }
+
+  Future<void> _toggleDone(String id, bool? value) async {
     final index = _todos.indexWhere((t) => t.id == id);
     if (index == -1) return;
+    await TodoLocalService.instance.updateTodo(id, done: value ?? false);
     setState(() => _todos[index].done = value ?? false);
   }
 
-  void _removeTodo(String id) {
+  Future<void> _removeTodo(String id) async {
+    await TodoLocalService.instance.removeTodo(id);
     setState(() => _todos.removeWhere((t) => t.id == id));
   }
 
-  void _editTodo(String id, String newTitle) {
-    final index = _todos.indexWhere((t) => t.id == id);
+  Future<void> _editTodo(String id, String newTitle) async {
+    final index = _todos.indexWhere((item) => item.id == id);
     if (index == -1) return;
-    setState(() => _todos[index].title = newTitle);
+    await TodoLocalService.instance.updateTodo(id, title: newTitle);
+    setState(() {
+      _todos[index].title = newTitle;
+    });
   }
 
   @override

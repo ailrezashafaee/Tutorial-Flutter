@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:todo/services/todo_local_service.dart';
 import 'package:todo/widgets/todo_app.dart';
 
-void main() {
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await TodoLocalService.instance.init();
   runApp(const MyApp());
 }
 

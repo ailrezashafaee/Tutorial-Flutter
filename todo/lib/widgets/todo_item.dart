@@ -16,24 +16,24 @@ class TodoItem extends StatelessWidget {
   });
 
   Future<void> _showEditDialog(BuildContext context) async {
-    final controller = TextEditingController(text: todo.title);
-    return showDialog<void>(
+    final contoller = TextEditingController(text: todo.title);
+    return showDialog(
       context: context,
       builder: (ctx) {
         return AlertDialog(
-          title: const Text('Edit Task'),
+          title: const Text('Edit task'),
           content: TextField(
-            controller: controller,
+            controller: contoller,
             decoration: const InputDecoration(labelText: 'Task title'),
           ),
           actions: [
             TextButton(
               onPressed: () => Navigator.of(ctx).pop(),
-              child: const Text('Cancel'),
+              child: const Text('cancel'),
             ),
             ElevatedButton(
               onPressed: () {
-                final newTitle = controller.text.trim();
+                final newTitle = contoller.text.trim();
                 if (newTitle.isNotEmpty) onEdit(todo.id, newTitle);
                 Navigator.of(ctx).pop();
               },
@@ -83,8 +83,8 @@ class TodoItem extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             children: [
               IconButton(
-                icon: const Icon(Icons.edit),
                 onPressed: () => _showEditDialog(context),
+                icon: const Icon(Icons.edit),
               ),
               IconButton(
                 icon: const Icon(Icons.delete),
